@@ -1,9 +1,12 @@
 package ru.evolenta.messenger.controller;
 
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.evolenta.messenger.dto.Message;
+import ru.evolenta.messenger.repository.MessageRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,14 +23,16 @@ public class MessageController {
             new Message(3, "Friday", "Monday is the fifth day of the week", LocalDateTime.now())
     ));
 
+    @Autowired
+    private MessageRepository repository;
+
     /*
      *  Добавление объекта Message
      */
-    @PostMapping("/message")
-    public ResponseEntity<Message> addMessage(@RequestBody Message message) {
-
-        messages.add(message);
-        return new ResponseEntity<>(message, HttpStatus.CREATED);
+    @PostMapping("/person")
+    public ResponseEntity<Person> setPerson(@RequestBody Person person) {
+        persons.add(person);
+        return new ResponseEntity<>(person, HttpStatus.CREATED);
     }
 
     /*
@@ -35,31 +40,33 @@ public class MessageController {
      */
     @GetMapping("/message")
     public Iterable<Message> getMessages() {
-        return messages;
+        return repository.findAll();
     }
 
     /*
     *  Возврат объекта Message по id
     */
     @GetMapping("/message/{id}")
-    public Optional<Message> getMessageById(@PathVariable int id) {
-
-        return messages.stream().filter(p -> p.getId() == id).findFirst();
+    public Optional<Message> findPersonById(@PathVariable int id) {
+        return repository.findById(id);
     }
 
     /*
      *  Изменение объекта Message по id
      */
     @PutMapping("/message/{id}")
+    @Transactional
     public Message updateMessage(@PathVariable int id, @RequestBody Message message) {
-        int index = - 1;
-        for (Message m : messages) {
-            if (m.getId() == id) {
-                index = messages.indexOf(m);
-                messages.set(index, message);
-            }
-        }
-        return index == -1 ? addMessage(message).getBody() : message;
+
+        String text = message.getText();
+        String title = message.getTitle();
+        LocalDateTime time = message.getTime();
+
+//        repository.
+        repository.deleteById(id);
+
+        messages.add(text, title, time);
+        return null;
     }
 
     /*
