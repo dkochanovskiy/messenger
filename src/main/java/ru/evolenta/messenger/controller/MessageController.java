@@ -14,7 +14,7 @@ import java.util.Optional;
 @RestController
 public class MessageController {
 
-    private List<Message> messages = new ArrayList<>(Arrays.asList(
+    private final List<Message> messages = new ArrayList<>(Arrays.asList(
             new Message(1, "Monday", "Monday is the first day of the week", LocalDateTime.now()),
             new Message(2, "Wednesday", "Monday is the third day of the week", LocalDateTime.now()),
             new Message(3, "Friday", "Monday is the fifth day of the week", LocalDateTime.now())
@@ -27,6 +27,7 @@ public class MessageController {
     public ResponseEntity<Message> addMessage(@RequestBody Message message) {
 
         messages.add(message);
+
         return new ResponseEntity<>(message, HttpStatus.CREATED);
     }
 
@@ -34,7 +35,8 @@ public class MessageController {
      *  Возврат списка объектов Message
      */
     @GetMapping("/message")
-    public Iterable<Message> getMessages() {
+    public Iterable<Message> getMessage() {
+
         return messages;
     }
 
@@ -42,7 +44,7 @@ public class MessageController {
     *  Возврат объекта Message по id
     */
     @GetMapping("/message/{id}")
-    public Optional<Message> getMessageById(@PathVariable int id) {
+    public Optional<Message> findMessageById(@PathVariable int id) {
 
         return messages.stream().filter(p -> p.getId() == id).findFirst();
     }
@@ -52,14 +54,19 @@ public class MessageController {
      */
     @PutMapping("/message/{id}")
     public Message updateMessage(@PathVariable int id, @RequestBody Message message) {
-        int index = - 1;
-        for (Message m : messages) {
-            if (m.getId() == id) {
-                index = messages.indexOf(m);
-                messages.set(index, message);
-            }
-        }
-        return index == -1 ? addMessage(message).getBody() : message;
+
+        deleteMessage(id);
+
+        Message newMessage = new Message();
+
+        newMessage.setId(id);
+        newMessage.setTitle(message.getTitle());
+        newMessage.setText(message.getText());
+        newMessage.setTime(message.getTime());
+
+        messages.add(newMessage);
+
+        return newMessage;
     }
 
     /*
@@ -67,6 +74,7 @@ public class MessageController {
      */
     @DeleteMapping("/message/{id}")
     public void deleteMessage(@PathVariable int id) {
-        messages.removeIf(p -> p.getId() == id);
+
+        messages.removeIf(m -> m.getId() == id);
     }
 }

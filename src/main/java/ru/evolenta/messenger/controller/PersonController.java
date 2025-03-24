@@ -14,7 +14,7 @@ import java.util.Optional;
 @RestController
 public class PersonController {
 
-    private List<Person> persons = new ArrayList<>(Arrays.asList(
+    private final List<Person> persons = new ArrayList<>(Arrays.asList(
             new Person(1, "Ivan", "Ivanovich", "Ivanov", LocalDate.of(1999, 2,3)),
             new Person(2, "Петр", "Петрович", "Петров", LocalDate.of(2002, 2,2)),
             new Person(3, "Евгений", "Васильевич", "Васин", LocalDate.of(2005, 4,8)),
@@ -28,6 +28,7 @@ public class PersonController {
     public ResponseEntity<Person> addPerson(@RequestBody Person person) {
 
         persons.add(person);
+
         return new ResponseEntity<>(person, HttpStatus.CREATED);
     }
 
@@ -36,6 +37,7 @@ public class PersonController {
      */
     @GetMapping("/person")
     public Iterable<Person> getPersons() {
+
         return persons;
     }
 
@@ -43,7 +45,7 @@ public class PersonController {
      *  Возврат объекта Person по id
      */
     @GetMapping("/person/{id}")
-    public Optional<Person> getPersonById(@PathVariable int id) {
+    public Optional<Person> findPersonById(@PathVariable int id) {
 
         return persons.stream().filter(p -> p.getId() == id).findFirst();
     }
@@ -53,14 +55,20 @@ public class PersonController {
      */
     @PutMapping("/person/{id}")
     public Person updatePerson(@PathVariable int id, @RequestBody Person person) {
-        int index = - 1;
-        for (Person m : persons) {
-            if (m.getId() == id) {
-                index = persons.indexOf(m);
-                persons.set(index, person);
-            }
-        }
-        return index == -1 ? addPerson(person).getBody() : person;
+
+        deletePerson(id);
+
+        Person newPerson = new Person();
+
+        newPerson.setId(id);
+        newPerson.setFirstname(person.getFirstname());
+        newPerson.setSurname(person.getSurname());
+        newPerson.setLastname(person.getLastname());
+        newPerson.setBirthday(person.getBirthday());
+
+        persons.add(newPerson);
+
+        return newPerson;
     }
 
     /*
@@ -68,6 +76,7 @@ public class PersonController {
      */
     @DeleteMapping("/person/{id}")
     public void deletePerson(@PathVariable int id) {
+
         persons.removeIf(p -> p.getId() == id);
     }
 }
