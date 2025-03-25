@@ -1,5 +1,6 @@
 package ru.evolenta.messenger.controller;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,12 +52,23 @@ public class PersonController {
     /*
      *  Изменение объекта Person по id
      */
+    @Transactional
     @PutMapping("/person/{id}")
     public ResponseEntity<Person> updatePerson(@PathVariable int id, @RequestBody Person person) {
 
         HttpStatus status = repository.existsById(id) ? HttpStatus.OK : HttpStatus.CREATED;
 
-        return new ResponseEntity(repository.save(person), status);
+        repository.deleteById(id);
+
+        Person newPerson = new Person(
+                id,
+                person.getFirstname(),
+                person.getLastname(),
+                person.getSurname(),
+                person.getBirthday()
+        );
+
+        return new ResponseEntity(repository.save(newPerson), status);
     }
 
     /*

@@ -1,20 +1,18 @@
 package ru.evolenta.messenger.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.evolenta.messenger.dto.Message;
+import ru.evolenta.messenger.dto.Person;
 import ru.evolenta.messenger.repository.MessageRepository;
 
 import java.util.Optional;
 
 @RestController
 public class MessageController {
-
-    private static final Logger LOG = LoggerFactory.getLogger(MessageController.class);
 
     @Autowired
     private MessageRepository repository;
@@ -51,12 +49,22 @@ public class MessageController {
     /*
      *  Изменение объекта Message по id
      */
+    @Transactional
     @PutMapping("/message/{id}")
     public ResponseEntity<Message> updateMessage(@PathVariable int id, @RequestBody Message message) {
 
         HttpStatus status = repository.existsById(id) ? HttpStatus.OK : HttpStatus.CREATED;
 
-        return new ResponseEntity(repository.save(message), status);
+        repository.deleteById(id);
+
+        Message newMessage = new Message(
+                id,
+                message.getTitle(),
+                message.getText(),
+                message.getTime()
+        );
+
+        return new ResponseEntity(repository.save(newMessage), status);
     }
 
     /*
