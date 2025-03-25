@@ -1,34 +1,33 @@
 package ru.evolenta.messenger.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.evolenta.messenger.dto.Message;
+import ru.evolenta.messenger.repository.MessageRepository;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
 public class MessageController {
 
-    private final List<Message> messages = new ArrayList<>(Arrays.asList(
-            new Message(1, "Monday", "Monday is the first day of the week", LocalDateTime.now()),
-            new Message(2, "Wednesday", "Monday is the third day of the week", LocalDateTime.now()),
-            new Message(3, "Friday", "Monday is the fifth day of the week", LocalDateTime.now())
-    ));
+    private static final Logger LOG = LoggerFactory.getLogger(MessageController.class);
+
+    @Autowired
+    private MessageRepository repository;
 
     /*
      *  Добавление объекта Message
      */
     @PostMapping("/message")
-    public ResponseEntity<Message> addMessage(@RequestBody Message message) {
+    public Message addMessage(@RequestBody Message message) {
 
-        messages.add(message);
+        repository.save(message);
 
-        return new ResponseEntity<>(message, HttpStatus.CREATED);
+        return message;
     }
 
     /*
@@ -37,7 +36,7 @@ public class MessageController {
     @GetMapping("/message")
     public Iterable<Message> getMessage() {
 
-        return messages;
+        return repository.findAll();
     }
 
     /*
@@ -46,27 +45,18 @@ public class MessageController {
     @GetMapping("/message/{id}")
     public Optional<Message> findMessageById(@PathVariable int id) {
 
-        return messages.stream().filter(p -> p.getId() == id).findFirst();
+        return repository.findById(id);
     }
 
     /*
      *  Изменение объекта Message по id
      */
     @PutMapping("/message/{id}")
-    public Message updateMessage(@PathVariable int id, @RequestBody Message message) {
+    public ResponseEntity<Message> updateMessage(@PathVariable int id, @RequestBody Message message) {
 
-        deleteMessage(id);
+        HttpStatus status = repository.existsById(id) ? HttpStatus.OK : HttpStatus.CREATED;
 
-        Message newMessage = new Message();
-
-        newMessage.setId(id);
-        newMessage.setTitle(message.getTitle());
-        newMessage.setText(message.getText());
-        newMessage.setTime(message.getTime());
-
-        messages.add(newMessage);
-
-        return newMessage;
+        return new ResponseEntity(repository.save(message), status);
     }
 
     /*
@@ -75,6 +65,6 @@ public class MessageController {
     @DeleteMapping("/message/{id}")
     public void deleteMessage(@PathVariable int id) {
 
-        messages.removeIf(m -> m.getId() == id);
+        repository.deleteById(id);
     }
 }
