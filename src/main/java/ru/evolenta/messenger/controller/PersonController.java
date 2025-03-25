@@ -8,10 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.evolenta.messenger.dto.Person;
 import ru.evolenta.messenger.repository.PersonRepository;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -68,7 +64,7 @@ public class PersonController {
                 person.getBirthday()
         );
 
-        return new ResponseEntity(repository.save(newPerson), status);
+        return new ResponseEntity<>(repository.save(newPerson), status);
     }
 
     /*

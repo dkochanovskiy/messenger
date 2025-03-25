@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.evolenta.messenger.dto.Message;
-import ru.evolenta.messenger.dto.Person;
 import ru.evolenta.messenger.repository.MessageRepository;
 
 import java.util.Optional;
@@ -64,7 +63,7 @@ public class MessageController {
                 message.getTime()
         );
 
-        return new ResponseEntity(repository.save(newMessage), status);
+        return new ResponseEntity<>(repository.save(newMessage), status);
     }
 
     /*
