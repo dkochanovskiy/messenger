@@ -2,11 +2,10 @@ package ru.evolenta.messenger.controller;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.evolenta.messenger.dto.Person;
-import ru.evolenta.messenger.repository.PersonRepository;
+import ru.evolenta.messenger.service.PersonService;
 
 import java.util.Optional;
 
@@ -14,7 +13,7 @@ import java.util.Optional;
 public class PersonController {
 
     @Autowired
-    private PersonRepository repository;
+    PersonService personService;
 
     /*
      *  Добавление объекта Person
@@ -22,7 +21,7 @@ public class PersonController {
     @PostMapping("/person")
     public Person addPerson(@RequestBody Person person) {
 
-        repository.save(person);
+        personService.addPerson(person);
 
         return person;
     }
@@ -33,7 +32,7 @@ public class PersonController {
     @GetMapping("/person")
     public Iterable<Person> getPerson() {
 
-        return repository.findAll();
+        return personService.getPerson();
     }
 
     /*
@@ -42,7 +41,7 @@ public class PersonController {
     @GetMapping("/person/{id}")
     public Optional<Person> findPersonById(@PathVariable int id) {
 
-        return repository.findById(id);
+        return personService.findPersonById(id);
     }
 
     /*
@@ -52,19 +51,7 @@ public class PersonController {
     @PutMapping("/person/{id}")
     public ResponseEntity<Person> updatePerson(@PathVariable int id, @RequestBody Person person) {
 
-        HttpStatus status = repository.existsById(id) ? HttpStatus.OK : HttpStatus.CREATED;
-
-        repository.deleteById(id);
-
-        Person newPerson = new Person(
-                id,
-                person.getFirstname(),
-                person.getLastname(),
-                person.getSurname(),
-                person.getBirthday()
-        );
-
-        return new ResponseEntity<>(repository.save(newPerson), status);
+        return personService.updatePerson(id, person);
     }
 
     /*
@@ -73,6 +60,6 @@ public class PersonController {
     @DeleteMapping("/person/{id}")
     public void deletePerson(@PathVariable int id) {
 
-        repository.deleteById(id);
+        personService.deletePerson(id);
     }
 }

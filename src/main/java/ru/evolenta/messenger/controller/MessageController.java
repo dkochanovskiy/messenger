@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.evolenta.messenger.dto.Message;
 import ru.evolenta.messenger.repository.MessageRepository;
+import ru.evolenta.messenger.service.MessageService;
 
 import java.util.Optional;
 
@@ -14,7 +15,7 @@ import java.util.Optional;
 public class MessageController {
 
     @Autowired
-    private MessageRepository repository;
+    private MessageService messageService;
 
     /*
      *  Добавление объекта Message
@@ -22,9 +23,7 @@ public class MessageController {
     @PostMapping("/message")
     public Message addMessage(@RequestBody Message message) {
 
-        repository.save(message);
-
-        return message;
+        return messageService.addMessage(message);
     }
 
     /*
@@ -33,7 +32,7 @@ public class MessageController {
     @GetMapping("/message")
     public Iterable<Message> getMessage() {
 
-        return repository.findAll();
+        return  messageService.getMessage();
     }
 
     /*
@@ -42,28 +41,16 @@ public class MessageController {
     @GetMapping("/message/{id}")
     public Optional<Message> findMessageById(@PathVariable int id) {
 
-        return repository.findById(id);
+        return  messageService.findMessageById(id);
     }
 
     /*
      *  Изменение объекта Message по id
      */
-    @Transactional
     @PutMapping("/message/{id}")
     public ResponseEntity<Message> updateMessage(@PathVariable int id, @RequestBody Message message) {
 
-        HttpStatus status = repository.existsById(id) ? HttpStatus.OK : HttpStatus.CREATED;
-
-        repository.deleteById(id);
-
-        Message newMessage = new Message(
-                id,
-                message.getTitle(),
-                message.getText(),
-                message.getTime()
-        );
-
-        return new ResponseEntity<>(repository.save(newMessage), status);
+        return new ResponseEntity<>(messageService.updateMessage(id, message).getStatusCode());
     }
 
     /*
@@ -72,6 +59,6 @@ public class MessageController {
     @DeleteMapping("/message/{id}")
     public void deleteMessage(@PathVariable int id) {
 
-        repository.deleteById(id);
+        messageService.deleteMessage(id);
     }
 }
