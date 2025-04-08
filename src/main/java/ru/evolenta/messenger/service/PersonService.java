@@ -9,11 +9,11 @@ import java.util.Optional;
 
 public interface PersonService {
 
-    public Person addPerson(@RequestBody Person person);
-    public Iterable<Person> getPerson();
-    public Optional<Person> findPersonById(@PathVariable int id);
-    public ResponseEntity<Person> updatePerson(@PathVariable int id, @RequestBody Person person);
-    public void deletePerson(@PathVariable int id);
+    Person addPerson(@RequestBody Person person);
+    Iterable<Person> getPerson();
+    Optional<Person> findPersonById(@PathVariable int id);
+    ResponseEntity<Person> updatePerson(@PathVariable int id, @RequestBody Person person);
+    void deletePerson(@PathVariable int id);
 
 //    GET /person/{p_id}/message - Возврат списка сообщений Message для объекта Person по p_id
 //    GET /person/{p_id}/message/{m_id} - Возврат сообщения Message с m_id для объекта Person по p_id

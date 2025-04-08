@@ -12,31 +12,27 @@ import ru.evolenta.messenger.service.PersonService;
 import java.util.Optional;
 
 @Service
-public class PersonServiceImpl implements PersonService {
+public class PersonServiceImpl {
 
     @Autowired
     private PersonRepository repository;
 
-    @Override
     public Person addPerson(Person person) {
 
         return repository.save(person);
     }
 
-    @Override
     public Iterable<Person> getPerson() {
 
         return repository.findAll();
     }
 
-    @Override
     public Optional<Person> findPersonById(int id) {
 
         return repository.findById(id);
     }
 
     @Transactional
-    @Override
     public ResponseEntity<Person> updatePerson(int id, Person person) {
 
         HttpStatus status = repository.existsById(id) ? HttpStatus.OK : HttpStatus.CREATED;
@@ -54,7 +50,6 @@ public class PersonServiceImpl implements PersonService {
         return new ResponseEntity<>(repository.save(newPerson), status);
     }
 
-    @Override
     public void deletePerson(int id) {
 
         repository.deleteById(id);

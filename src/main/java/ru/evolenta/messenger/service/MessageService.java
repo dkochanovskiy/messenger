@@ -9,9 +9,11 @@ import java.util.Optional;
 
 public interface MessageService {
 
-    public Message addMessage(@RequestBody Message message);
-    public Iterable<Message> getMessage();
-    public Optional<Message> findMessageById(@PathVariable int id);
-    public ResponseEntity<Message> updateMessage(@PathVariable int id, @RequestBody Message message);
-    public void deleteMessage(@PathVariable int id);
+    Message addMessage(@RequestBody Message message);
+    Iterable<Message> getMessage();
+    Optional<Message> findMessageById(@PathVariable int id);
+    ResponseEntity<Message> updateMessage(@PathVariable int id, @RequestBody Message message);
+    void deleteMessage(@PathVariable int id);
+
+    Iterable<Message> getMessageByPersonId();
 }
