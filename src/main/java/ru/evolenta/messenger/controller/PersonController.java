@@ -1,15 +1,12 @@
 package ru.evolenta.messenger.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.evolenta.messenger.dto.Message;
 import ru.evolenta.messenger.dto.Person;
-import ru.evolenta.messenger.repository.PersonRepository;
+import ru.evolenta.messenger.service.PersonService;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,54 +14,86 @@ import java.util.Optional;
 public class PersonController {
 
     @Autowired
-    private PersonRepository repository;
+    private PersonService personService;
 
     /*
-     *  Добавление объекта Person
+     *  Добавление пользователя
      */
     @PostMapping("/person")
     public Person addPerson(@RequestBody Person person) {
 
-        repository.save(person);
-
-        return person;
+        return personService.addPerson(person);
     }
 
     /*
-     *  Возврат списка объектов Person
+     *  Поиск всех пользователей
      */
     @GetMapping("/person")
     public Iterable<Person> getPerson() {
 
-        return repository.findAll();
+        return personService.getPerson();
     }
 
     /*
-     *  Возврат объекта Person по id
+     *  Поиск одного пользователя
      */
     @GetMapping("/person/{id}")
     public Optional<Person> findPersonById(@PathVariable int id) {
 
-        return repository.findById(id);
+        return personService.findPersonById(id);
     }
 
     /*
-     *  Изменение объекта Person по id
+     *  Изменение пользователя
      */
     @PutMapping("/person/{id}")
-    public ResponseEntity<Person> updatePerson(@PathVariable int id, @RequestBody Person person) {
+    public void updatePerson(@PathVariable int id, @RequestBody Person person) {
 
-        HttpStatus status = repository.existsById(id) ? HttpStatus.OK : HttpStatus.CREATED;
-
-        return new ResponseEntity(repository.save(person), status);
+        personService.updatePerson(id, person);
     }
 
     /*
-     *  Удаление объекта Person по id
+     *  Удаление пользователя
      */
     @DeleteMapping("/person/{id}")
     public void deletePerson(@PathVariable int id) {
 
-        repository.deleteById(id);
+        personService.deletePerson(id);
+    }
+
+    /*
+     *  Вывод всех сообщений для конкретного пользователя
+     */
+    @GetMapping("/person/{id}/message")
+    public List<Message> getMessagesForPerson(@PathVariable int id) {
+
+        return personService.getMessagesForPerson(id);
+    }
+
+    /*
+     *  Вывод одного сообщения для конкретного пользователя
+     */
+    @GetMapping("/person/{personId}/message/{messageId}")
+    public Optional<Message> getMessageByIdForPerson(@PathVariable int personId, @PathVariable int messageId) {
+
+        return personService.getMessageByIdForPerson(personId, messageId);
+    }
+
+    /*
+     *  Удаление сообщения у конкретного пользователя
+     */
+    @DeleteMapping("/person/{personId}/message/{messageId}")
+    public void deleteMessageFromPerson(@PathVariable int personId, @PathVariable int messageId) {
+
+        personService.deleteMessageFromPerson(personId, messageId);
+    }
+
+    /*
+     *  Добавление сообщения конкретному пользователю при существовании пользователя
+     */
+    @PostMapping("/person/{id}/message")
+    public ResponseEntity<?> addMessageToPerson(@PathVariable int id, @RequestBody Message message) {
+
+        return personService.addMessageToPerson(id, message);
     }
 }
